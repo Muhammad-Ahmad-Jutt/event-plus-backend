@@ -9,7 +9,7 @@ This project follows a clean **App Factory pattern** with a modular, scalable ar
 
 This project follows a structured backend design:
 
-```
+
 
 ├── project-root/
 ├── EVENT-PLUS-BACKEND/
@@ -26,7 +26,7 @@ This project follows a structured backend design:
 │   │
 │   ├── run.py                 # Application entry point
 │   └── requirements.txt
-````
+
 
 ---
 
@@ -255,3 +255,5 @@ This structure ensures:
 
 ```
 ```
+not this file is created using an llm
+folder structure is inspired from the muneebdev.com app factory
