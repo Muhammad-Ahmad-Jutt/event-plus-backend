@@ -1,5 +1,3 @@
-# app/__init__.py
-
 import os
 from flask import Flask
 from logging.config import dictConfig
@@ -7,8 +5,8 @@ from dotenv import load_dotenv
 from .extensions import db
 import logging
 import time
-
-load_dotenv()  # Load .env file
+from .extensions import db, init_dynamodb
+load_dotenv()  
 
 
 def create_app():
@@ -32,8 +30,9 @@ def create_app():
     logger.info(f"Starting app in {env.upper()} mode")
 
     # Initialize extensions
+    # Initialize extensions
     db.init_app(app)
-
+    init_dynamodb(app)  # 👈 ADD THIS
     # Register middleware logging
     register_logging_middleware(app)
 

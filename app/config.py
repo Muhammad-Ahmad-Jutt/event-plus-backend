@@ -5,7 +5,10 @@ import copy
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
-
+    AWS_REGION = "us-east-1"
+    DYNAMODB_ENDPOINT = os.getenv("DYNAMODB_ENDPOINT", "http://localhost:8000")
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "dummy")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "dummy")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
         "sqlite:///app.db"
