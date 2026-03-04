@@ -1,5 +1,5 @@
-from app.models.user import User
-
 def get_all_users():
-    users = User.query.all()
-    return [user.to_dict() for user in users]
+    return [
+        {"id": 1, "name": "Ahmad"},
+        {"id": 2, "name": "Ali"}
+    ]
