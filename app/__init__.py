@@ -1,11 +1,14 @@
 import os
-from flask import Flask
+from flask import Flask, current_app
 from logging.config import dictConfig
 from dotenv import load_dotenv
 from .extensions import db
 import logging
 import time
 from .extensions import db, init_dynamodb
+
+from app.repositories.user_repository import UserRepository
+from app.services.authentication_service import AuthService
 load_dotenv()  
 
 
@@ -14,7 +17,6 @@ def create_app():
 
     # Choose environment
     env = os.getenv("APP_ENV", "development")
-
     if env == "production":
         app.config.from_object("app.config.ProductionConfig")
     else:
@@ -28,11 +30,14 @@ def create_app():
     dictConfig(app.config["LOGGING_CONFIG"])
     logger = logging.getLogger(__name__)
     logger.info(f"Starting app in {env.upper()} mode")
-
-    # Initialize extensions
     # Initialize extensions
     db.init_app(app)
-    init_dynamodb(app)  # 👈 ADD THIS
+    dynamodb = init_dynamodb(app)
+    user_repo = UserRepository(dynamodb,app.config['DYNAMODB_TABLE'])
+    auth_service = AuthService(user_repo)
+    app.auth_service = auth_service
+
+
     # Register middleware logging
     register_logging_middleware(app)
 

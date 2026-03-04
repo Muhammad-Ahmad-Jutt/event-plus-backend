@@ -1,10 +1,12 @@
-# app/config.py
+    # app/config.py
 
 import os
 import copy
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret")
+    DYNAMODB_TABLE = os.getenv('DYNAMODB_TABLE')
     AWS_REGION = "us-east-1"
     DYNAMODB_ENDPOINT = os.getenv("DYNAMODB_ENDPOINT", "http://localhost:8000")
     AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "dummy")
