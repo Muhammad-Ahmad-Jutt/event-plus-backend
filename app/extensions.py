@@ -2,7 +2,9 @@
 
 from flask_sqlalchemy import SQLAlchemy
 import boto3
+import logging
 
+logger = logging.getLogger(__name__)
 db = SQLAlchemy()
 
 
@@ -14,5 +16,5 @@ def init_dynamodb(app):
         aws_access_key_id=app.config["AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=app.config["AWS_SECRET_ACCESS_KEY"],
     )
-
+    logger.info('Database connected -------------------------->')
     app.dynamodb = dynamodb
