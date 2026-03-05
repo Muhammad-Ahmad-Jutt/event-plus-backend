@@ -3,7 +3,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import boto3
 import logging
-
+from datetime import datetime
 logger = logging.getLogger(__name__)
 db = SQLAlchemy()
 
@@ -18,3 +18,7 @@ def init_dynamodb(app):
     )
     logger.info('Database connected -------------------------->')
     app.dynamodb = dynamodb
+    return dynamodb
+def parse_date(date_string):
+    provided_date = datetime.strptime(date_string, "%d%b%Y%H%M%S")
+    return provided_date.date()
