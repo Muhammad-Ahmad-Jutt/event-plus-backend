@@ -9,11 +9,13 @@ from .extensions import db, init_dynamodb
 
 from app.repositories.user_repository import UserRepository
 from app.services.authentication_service import AuthService
+from flask_jwt_extended import JWTManager
 load_dotenv()  
 
 
 def create_app():
     app = Flask(__name__)
+    jwt = JWTManager()
 
     # Choose environment
     env = os.getenv("APP_ENV", "development")
@@ -32,6 +34,7 @@ def create_app():
     logger.info(f"Starting app in {env.upper()} mode")
     # Initialize extensions
     db.init_app(app)
+    jwt.init_app(app)
     dynamodb = init_dynamodb(app)
     user_repo = UserRepository(dynamodb,app.config['DYNAMODB_TABLE'])
     auth_service = AuthService(user_repo)
