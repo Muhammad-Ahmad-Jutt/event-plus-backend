@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify, current_app
-from app.services import authentication_service
 
 user_bp = Blueprint("users", __name__)
 
@@ -9,7 +8,7 @@ def register_user():
 
     data = request.get_json()
 
-    auth_service = current_app.auth_service   # ✅ get instance
+    auth_service = current_app.auth_service   
 
     user = auth_service.register(
         email=data["email"],
