@@ -9,6 +9,8 @@ from .extensions import db, init_dynamodb
 
 from app.repositories.user_repository import UserRepository
 from app.services.authentication_service import AuthService
+from app.repositories.event_repository import EventRepository
+from app.services.event_service import EventService
 from flask_jwt_extended import JWTManager
 load_dotenv()  
 
@@ -39,15 +41,18 @@ def create_app():
     user_repo = UserRepository(dynamodb,app.config['DYNAMODB_TABLE'])
     auth_service = AuthService(user_repo)
     app.auth_service = auth_service
-
+    event_repo = EventRepository(dynamodb, app.config['DYNAMODB_TABLE'])
+    event_service = EventService(event_repo)
+    app.event_service = event_service
 
     # Register middleware logging
     register_logging_middleware(app)
 
     # Register blueprints
     from .routes.user_routes import user_bp
+    from .routes.event_routes import event_bp
     app.register_blueprint(user_bp, url_prefix="/api/users")
-
+    app.register_blueprint(event_bp, url_prefix="/api/events")
     return app
 
 

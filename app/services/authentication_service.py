@@ -44,3 +44,6 @@ class AuthService:
         )
 
         return token
+    
+#  So this the stateless jwt token based authentication service.
+# logout will be handled on the client side by simply deleting the token from the front end. 

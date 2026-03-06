@@ -12,11 +12,17 @@ class User:
         phone_no=None,
         gender=None,
         dob=None,
-        role="attendee",
         is_verified=False,
         created_at=None,
         last_login=None
     ):
+        if not id or not email:
+            raise ValueError("email, and password hash are required")
+        if not isinstance(email, str) :
+            raise ValueError("Email and password hash must be strings")
+        if email is None :
+            raise ValueError("Email and password hash are required")
+        
         self.id = id
         self.email = email
         self.password_hash = password_hash

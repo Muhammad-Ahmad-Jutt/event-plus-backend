@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import boto3
 import logging
 from datetime import datetime
+import uuid
 logger = logging.getLogger(__name__)
 db = SQLAlchemy()
 
@@ -22,3 +23,7 @@ def init_dynamodb(app):
 def parse_date(date_string):
     provided_date = datetime.strptime(date_string, "%d%b%Y%H%M%S")
     return provided_date.date()
+def generate_slug(title):
+    slug = title.lower().replace(" ", "-")
+    unique_id = str(uuid.uuid4())[:8]
+    return f"{slug}-{unique_id}"
