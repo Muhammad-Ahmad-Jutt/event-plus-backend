@@ -5,8 +5,9 @@ from dotenv import load_dotenv
 from .extensions import db
 import logging
 import time
-from .extensions import db, init_dynamodb
-
+# from .extensions import db, init_dynamodb
+from app.infrastructure.dynamodb.setup import ensure_table_and_gsis
+from app.infrastructure.dynamodb.client import get_dynamodb_resource
 from app.repositories.user_repository import UserRepository
 from app.services.authentication_service import AuthService
 from app.repositories.event_repository import EventRepository
@@ -37,12 +38,14 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
-    dynamodb = init_dynamodb(app)
+    ensure_table_and_gsis()
+    dynamodb = get_dynamodb_resource(app)
     user_repo = UserRepository(dynamodb,app.config['DYNAMODB_TABLE'])
     auth_service = AuthService(user_repo)
     app.auth_service = auth_service
+
     event_repo = EventRepository(dynamodb, app.config['DYNAMODB_TABLE'])
-    event_service = EventService(event_repo)
+    event_service = EventService(event_repo, user_repo)
     app.event_service = event_service
 
     # Register middleware logging
