@@ -9,7 +9,8 @@ class AuthService:
         self.user_repository = user_repository
 
     def register(self, email, username, password, dob, gender, phone_no):
-
+        if self.user_repository.get_by_email(email):
+            raise Exception("Email already registered")
         user = User(
             id=str(uuid.uuid4()),
             email=email,

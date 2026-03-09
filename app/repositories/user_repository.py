@@ -54,3 +54,8 @@ class UserRepository:
             dob=item.get("dob"),
             last_login=item.get("last_login"),
         )
+    def get_user_name_by_id(self, user_id):
+        item = self.table.get_item(Key={"PK": f"USER#{user_id}", "SK": "PROFILE"}).get("Item")
+        if not item:
+            return None
+        return item.get("username")

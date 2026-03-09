@@ -8,10 +8,10 @@ class EventService:
         self.event_repository = event_repository
         self.user_repository = user_repository
 
-    def create_event(self, title, description, event_start_datetime,event_end_datetime, organizer_email, organizer_name=None, organizing_for=None, no_of_participants_allowed=10):
+    def create_event(self, title, description, event_start_datetime,event_end_datetime, organizer_id, organizer_name=None, organizing_for=None, no_of_participants_allowed=10):
     
         slug = generate_slug(title)
-        if self.event_repository.get_by_title_and_email(title,organizer_email):
+        if self.event_repository.get_by_title_and_id(title,organizer_id):
             raise ValueError("An event with the same title already exists. Please choose a different title.")
         if title is None or len(str(title)) < 8 or len(str(title)) > 20:
             raise ValueError("Title is required and must be between 8 and 20 characters long")
@@ -26,7 +26,7 @@ class EventService:
             event_start_datetime=event_start_datetime,
             event_end_datetime=event_end_datetime, # for now we are setting end datetime same as start datetime, we can change it later
             no_of_participants_allowed=no_of_participants_allowed,
-            organizer_email=organizer_email,
+            organizer_id=organizer_id,
             organizer_name=organizer_name,
             organizing_for=organizing_for,
             slug=slug
@@ -69,5 +69,10 @@ class EventService:
         if event.status in ['stopped', 'completed', 'cancelled', 'running']:
             raise ValueError("Cannot delete an event that is stopped, completed, running, or cancelled")
         self.event_repository.delete_event(event_id)
-    def get_events_by_organizer_email(self, organizer_email):
-        return self.event_repository.get_by_organizer_email(organizer_email)
+
+    def create_room_for_event(self, event_id):
+        event = self.event_repository.get_by_id(event_id)
+        if not event:
+            raise ValueError("Event not found")
+        room_id = str(uuid.uuid4())
+        return room_id

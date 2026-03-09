@@ -14,28 +14,28 @@ class EventRepository:
             "description": event.description,
             "event_start_datetime": str(event.event_start_datetime) if event.event_start_datetime else None,
             "event_end_datetime": str(event.event_end_datetime) if event.event_end_datetime else None,
-            "organizer_email": event.organizer_email,
+            "organizer_id": event.organizer_id,
             "slug": event.slug,
         }
         self.table.put_item(Item=item)
 
-    def get_by_organizer_email(self, organizer_email):
-        response = self.table.query(
-            IndexName="organizer-index",
-            KeyConditionExpression=Key("organizer_email").eq(organizer_email)
-        )
-        items = response.get("Items", [])
-        return [
-            Event(
-                id=item["PK"].split("#")[1],
-                title=item["title"],
-                description=item.get("description"),
-                event_start_datetime=item.get("event_start_datetime"),
-                event_end_datetime=item.get("event_end_datetime"),
-                organizer_email=item.get("organizer_email"),
-            )
-            for item in items
-        ]
+    # def get_by_organizer_email(self, organizer_email):
+    #     response = self.table.query(
+    #         IndexName="organizer-index",
+    #         KeyConditionExpression=Key("organizer_email").eq(organizer_email)
+    #     )
+    #     items = response.get("Items", [])
+    #     return [
+    #         Event(
+    #             id=item["PK"].split("#")[1],
+    #             title=item["title"],
+    #             description=item.get("description"),
+    #             event_start_datetime=item.get("event_start_datetime"),
+    #             event_end_datetime=item.get("event_end_datetime"),
+    #             organizer_email=item.get("organizer_email"),
+    #         )
+    #         for item in items
+    #     ]
 
     def get_by_id(self, event_id):
         item = self.table.get_item(Key={"PK": f"EVENT#{event_id}", "SK": "DETAILS"}).get("Item")
@@ -47,9 +47,25 @@ class EventRepository:
             description=item.get("description"),
             event_start_datetime=item.get("event_start_datetime"),
             event_end_datetime=item.get("event_end_datetime"),
-            organizer_email=item.get("organizer_email"),
+            organizer_id=item.get("organizer_id"),
         )
-
+    def get_events_by_organizer_id(self, organizer_id):
+        response = self.table.query(
+            IndexName="organizer-index",
+            KeyConditionExpression=Key("organizer_id").eq(organizer_id)
+        )
+        items = response.get("Items", [])
+        return [
+            Event(
+                id=item["PK"].split("#")[1],
+                title=item["title"],
+                description=item.get("description"),
+                event_start_datetime=item.get("event_start_datetime"),
+                event_end_datetime=item.get("event_end_datetime"),
+                organizer_id=item.get("organizer_id"),
+            )
+            for item in items
+        ]
     def delete_event(self, event_id):
         self.table.delete_item(Key={"PK": f"EVENT#{event_id}", "SK": "DETAILS"})
 
@@ -76,14 +92,14 @@ class EventRepository:
             description=item.get("description"),
             event_start_datetime=item.get("event_start_datetime"),
             event_end_datetime=item.get("event_end_datetime"),
-            organizer_email=item.get("organizer_email"),
+            organizer_id=item.get("organizer_id"),
         )
 
-    def get_by_title_and_email(self, title, organizer_email):
+    def get_by_title_and_id(self, title, organizer_id):
         # Use a composite filter if title is not the partition key
         response = self.table.query(
-            IndexName="title-organizer-index",
-            KeyConditionExpression=Key("title").eq(title) & Key("organizer_email").eq(organizer_email)
+            IndexName="title-organizerid-index",
+            KeyConditionExpression=Key("title").eq(title) & Key("organizer_id").eq(organizer_id)
         )
         print("Query response:---------------------------------------------------------------------------------------------", response)  
         items = response.get("Items")
