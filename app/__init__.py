@@ -13,13 +13,17 @@ from app.services.authentication_service import AuthService
 from app.repositories.event_repository import EventRepository
 from app.services.event_service import EventService
 from flask_jwt_extended import JWTManager
+from flask_socketio import SocketIO
+
+
+
 load_dotenv()  
 
+socketio = SocketIO(cors_allowed_origins=os.getenv("SOCKETIO_CORS_ALLOWED_ORIGINS", "*"))   
 
 def create_app():
     app = Flask(__name__)
     jwt = JWTManager()
-
     # Choose environment
     env = os.getenv("APP_ENV", "development")
     if env == "production":
@@ -38,6 +42,7 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
+    socketio.init_app(app, async_mode="gevent")   
     ensure_table_and_gsis()
     dynamodb = get_dynamodb_resource(app)
     user_repo = UserRepository(dynamodb,app.config['DYNAMODB_TABLE'])
