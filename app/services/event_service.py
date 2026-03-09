@@ -4,11 +4,15 @@ from app.domain.event import Event
 from app.extensions import generate_slug
 class EventService:
 
-    def __init__(self, event_repository):
+    def __init__(self, event_repository, user_repository):
         self.event_repository = event_repository
+        self.user_repository = user_repository
 
-    def create_event(self, title, description, event_start_datetime,event_end_datetime, organizer_email, no_of_participants_allowed=10):
+    def create_event(self, title, description, event_start_datetime,event_end_datetime, organizer_email, organizer_name=None, organizing_for=None, no_of_participants_allowed=10):
+    
         slug = generate_slug(title)
+        if self.event_repository.get_by_title_and_email(title,organizer_email):
+            raise ValueError("An event with the same title already exists. Please choose a different title.")
         if title is None or len(str(title)) < 8 or len(str(title)) > 20:
             raise ValueError("Title is required and must be between 8 and 20 characters long")
         if event_start_datetime is None or event_end_datetime is None :
@@ -23,6 +27,8 @@ class EventService:
             event_end_datetime=event_end_datetime, # for now we are setting end datetime same as start datetime, we can change it later
             no_of_participants_allowed=no_of_participants_allowed,
             organizer_email=organizer_email,
+            organizer_name=organizer_name,
+            organizing_for=organizing_for,
             slug=slug
         )
 
