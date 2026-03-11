@@ -11,7 +11,8 @@ TABLE_SCHEMA = {
         {"AttributeName": "SK", "AttributeType": "S"},
         {"AttributeName": "slug", "AttributeType": "S"},
         {"AttributeName": "organizer_id", "AttributeType": "S"},
-        {"AttributeName": "title", "AttributeType": "S"}
+        {"AttributeName": "title", "AttributeType": "S"},
+        {"AttributeName": "room_id", "AttributeType": "S"}
     ],
     "BillingMode": "PAY_PER_REQUEST",
     "GlobalSecondaryIndexes": [
@@ -44,6 +45,14 @@ TABLE_SCHEMA = {
             "KeySchema": [
                 { "AttributeName": "title", "KeyType": "HASH" },
                 { "AttributeName": "organizer_id", "KeyType": "RANGE" }
+            ],
+            "Projection": { "ProjectionType": "ALL" }
+        },
+        {
+            "IndexName": "room-id-index",
+            "KeySchema": [
+                { "AttributeName": "room_id", "KeyType": "HASH" },
+                { "AttributeName": "PK", "KeyType": "RANGE" }
             ],
             "Projection": { "ProjectionType": "ALL" }
         }

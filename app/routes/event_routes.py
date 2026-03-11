@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from app import socketio
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -31,6 +31,25 @@ def create_event():
 
     return jsonify({"success": True, "event_id": event.id}), 201
 
+@event_bp.route("/events_by_organizer", methods=["GET"])
+@jwt_required()
+def get_events_by_organizer():
+    current_user = get_jwt_identity()
+    events = current_app.event_service.get_events_by_organizer_id(current_user)
+    events_data = [
+        {
+            "id": event.id,
+            "title": event.title,
+            "description": event.description,
+            "event_start_datetime": event.event_start_datetime,
+            "event_end_datetime": event.event_end_datetime,
+            "organizer_id": event.organizer_id,
+            "status": event.status
+        }
+        for event in events
+    ]
+    return jsonify({"success": True, "events": events_data}), 200
+
 @event_bp.route("/start_event/<event_id>", methods=["PUT"])
 @jwt_required()
 def start_event(event_id):
@@ -49,7 +68,47 @@ def start_event(event_id):
     if event.status == 'running':
         return jsonify({"success": False, "message": "Event is already running"}), 400
     if event.status == 'scheduled' and event.event_start_datetime <= datetime.utcnow() and event.event_end_datetime >= datetime.utcnow():
-        current_app.event_service.update_event(event_id, status='running')
-        room_id =current_app.event_service.create_room_for_event(event_id, current_user)
+        room_id =current_app.event_service.create_room_for_event(event_id)
+        current_app.event_service.update_event(event_id, room_id=room_id, status='running')
+        socketio.emit(
+        "event_started",
+        {
+            "event_id": event_id,
+            "room_id": room_id
+        }
+    )
+
         return jsonify({"success": True, "message": "Event started successfully", "room_id": room_id}), 200
     
+
+@event_bp.route("/delete_event/<event_id>", methods=["DELETE"])
+@jwt_required()
+def delete_event(event_id):
+    current_user = get_jwt_identity()
+    current_app.event_service.delete_event(event_id, current_user)
+
+    return jsonify({"success": True, "message": "Event deleted successfully"}), 200
+
+@event_bp.route("/update_event/<event_id>", methods=["PUT"])
+@jwt_required()
+def update_event(event_id):
+    data = request.get_json()
+    current_user = get_jwt_identity()
+    event = current_app.event_service.by_id(event_id)
+    if not event:
+        return jsonify({"success": False, "message": "Event not found"}), 404
+    if event.organizer_id != current_user:
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    if event.status == 'running':
+        return jsonify({"success": False, "message": "Cannot update a running event"}), 400
+    current_app.event_service.update_event(
+        event_id,
+        title=data.get("title"),
+        description=data.get("description"),
+        event_start_datetime=data.get("event_start_datetime"),
+        event_end_datetime=data.get("event_end_datetime"),
+        no_of_participants_allowed=data.get("no_of_participants_allowed"),
+        organizing_for=data.get("organizing_for")
+    )
+
+    return jsonify({"success": True, "message": "Event updated successfully"}), 200
