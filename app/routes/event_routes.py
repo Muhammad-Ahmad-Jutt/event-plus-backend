@@ -79,7 +79,20 @@ def start_event(event_id):
     )
 
         return jsonify({"success": True, "message": "Event started successfully", "room_id": room_id}), 200
+@event_bp.route("/end_event/<event_id>", methods=["PUT"])
+@jwt_required()
+def end_event(event_id):
+    current_user = get_jwt_identity()
+    event = current_app.event_service.by_id(event_id)
+    if not event:
+        return jsonify({"success": False, "message": "Event not found"}), 404
+    if event.organizer_id != current_user:
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    if event.status != 'running':
+        return jsonify({"success": False, "message": "Only running events can be ended"}), 400 
+    current_app.event_service.update_event(event_id, status='ended', room_id=None)
     
+    return jsonify({"success": True, "message": "Event ended successfully"}), 200
 
 @event_bp.route("/delete_event/<event_id>", methods=["DELETE"])
 @jwt_required()

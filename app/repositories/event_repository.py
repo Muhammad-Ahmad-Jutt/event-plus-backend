@@ -1,6 +1,7 @@
 from boto3.dynamodb.conditions import Key
 from app.domain.event import Event
 from datetime import datetime
+from app.extensions import serialize_datetime
 class EventRepository:
 
     def __init__(self, dynamodb, table_name):
@@ -27,16 +28,20 @@ class EventRepository:
             "SK": "DETAILS",
             "title": event.title,
             "description": event.description,
-            "event_start_datetime": str(event.event_start_datetime) if event.event_start_datetime else None,
-            "event_end_datetime": str(event.event_end_datetime) if event.event_end_datetime else None,
+            "event_start_datetime": serialize_datetime(event.event_start_datetime),
+            "event_end_datetime": serialize_datetime(event.event_end_datetime),
             "organizer_id": event.organizer_id,
             "slug": event.slug,
             "no_of_participants_allowed": event.no_of_participants_allowed,
             "organizer_name": event.organizer_name,
             "status": event.status,
             "room_id": event.room_id,
-            "organizing_for": event.organizing_for,
+            "organizing_for": event.organizing_for
         }
+
+        # remove None values
+        item = {k: v for k, v in item.items() if v is not None}
+
         self.table.put_item(Item=item)
 
     # def get_by_organizer_email(self, organizer_email):
