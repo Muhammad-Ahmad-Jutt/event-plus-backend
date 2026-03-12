@@ -31,7 +31,6 @@ class EventService:
             organizing_for=organizing_for,
             slug=slug
         )
-
         self.event_repository.save(event)
 
         return event
@@ -44,16 +43,17 @@ class EventService:
         event_start_datetime=None,
         event_end_datetime=None,
         no_of_participants_allowed=None,
-        room_id=None
+        room_id=None,
+        organizing_for=None
     ):
         # Fetch the event
         event = self.event_repository.get_by_id(event_id)
         if not event:
             raise ValueError("Event not found")
 
-        # Prevent updates on certain statuses
-        if event.status in ['stopped', 'completed', 'running', 'cancelled']:
-            raise ValueError("Cannot update an event that is stopped, completed, running, or cancelled")
+        # # Prevent updates on certain statuses
+        # if event.status in ['stopped', 'completed', 'running', 'cancelled']:
+        #     raise ValueError("Cannot update an event that is stopped, completed, running, or cancelled")
 
         # Validate title length if provided
         if title is not None and (len(str(title)) < 8 or len(str(title)) > 20):
@@ -75,7 +75,8 @@ class EventService:
             'event_start_datetime': event_start_datetime,
             'event_end_datetime': event_end_datetime,
             'no_of_participants_allowed': no_of_participants_allowed,
-            'room_id': room_id
+            'room_id': room_id,
+            'organizing_for': organizing_for
         }.items():
             if value is not None:
                 setattr(event, key, value)

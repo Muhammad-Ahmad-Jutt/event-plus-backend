@@ -33,3 +33,7 @@ def match_start_end_datetime(start_datetime_str, end_datetime_str):
     if start_datetime > end_datetime:
         raise ValueError("Event start datetime cannot be after end datetime.")
     return start_datetime, end_datetime
+def serialize_datetime(value):
+    if isinstance(value, datetime):
+        return value.isoformat()
+    return value
