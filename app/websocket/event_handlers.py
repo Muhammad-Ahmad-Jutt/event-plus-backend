@@ -46,4 +46,5 @@ def handle_message(data):
     if not info:
         return
     room_id = info['room_id']
+    print(f"Emitting message to room {room_id}: {data['message']}")
     emit('message', {'user': info['user_id'], 'message': data['message']}, room=room_id)
