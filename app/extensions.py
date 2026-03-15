@@ -5,8 +5,10 @@ import boto3
 import logging
 from datetime import datetime
 import uuid
+from flask_socketio import SocketIO
 logger = logging.getLogger(__name__)
 db = SQLAlchemy()
+socketio = SocketIO( cors_allowed_origins="*")
 
 
 # def init_dynamodb(app):
