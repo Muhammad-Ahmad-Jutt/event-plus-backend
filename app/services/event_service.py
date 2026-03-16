@@ -111,3 +111,9 @@ class EventService:
     def by_id(self, event_id):
         event = self.event_repository.get_by_id(event_id)
         return event
+    def update_questionnaire(self, event_id, questionnaire):
+        event = self.event_repository.get_by_id(event_id)
+        if not event:
+            raise ValueError("Event not found")
+        event.questionnaire = questionnaire
+        self.event_repository.save(event)

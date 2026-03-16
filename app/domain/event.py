@@ -14,7 +14,8 @@ class Event:
         no_of_participants_allowed=None,
         room_id=None,
         slug=None,
-        status=None
+        status=None,
+        questionnaire=None
     ):
         if not id or not title or not organizer_id:
             raise ValueError("Missing required fields for Event")
@@ -31,6 +32,8 @@ class Event:
         self.room_id = room_id
         self.slug = slug
         self.status = status
+        self.questionnaire = questionnaire
+
     def update_event(
         self,
         title=None,
@@ -41,7 +44,9 @@ class Event:
         event_end_datetime=None,
         no_of_participants_allowed=None,
         room_id=None,
-        status=None
+        status=None,
+        questionnaire=None
+
     ):
         if title is not None:
             self.title = title
@@ -61,4 +66,5 @@ class Event:
             self.status = status
         if no_of_participants_allowed is not None:
             self.no_of_participants_allowed = no_of_participants_allowed
-    
+        if questionnaire is not None:
+            self.questionnaire = questionnaire
