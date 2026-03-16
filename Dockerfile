@@ -32,4 +32,4 @@ RUN mkdir -p logs
 EXPOSE 5000
 
 # Run with Gunicorn (production WSGI server)
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn","-k","geventwebsocket.gunicorn.workers.GeventWebSocketWorker","-w","1","-b","0.0.0.0:5000","run:app"]
