@@ -125,3 +125,9 @@ class EventRepository:
             UpdateExpression="SET room_id = :r",
             ExpressionAttributeValues={":r": room_id}
         )
+    def update_questionnaire(self, event_id, questionnaire):
+        self.table.update_item(
+            Key={"PK": f"EVENT#{event_id}", "SK": "DETAILS"},
+            UpdateExpression="SET questionnaire = :q",
+            ExpressionAttributeValues={":q": questionnaire}
+        )
