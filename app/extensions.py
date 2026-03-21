@@ -39,3 +39,13 @@ def serialize_datetime(value):
     if isinstance(value, datetime):
         return value.isoformat()
     return value
+
+def safe_parse_iso(dt_str):
+    if not dt_str:
+        return None
+    try:
+        return datetime.fromisoformat(dt_str)
+    except ValueError:
+        # Log invalid datetime and return None
+        print(f"[WARNING] Invalid datetime string: {dt_str}")
+        return None

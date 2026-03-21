@@ -2,6 +2,7 @@ from boto3.dynamodb.conditions import Key
 from app.domain.event import Event
 from datetime import datetime
 from app.extensions import serialize_datetime
+from app.extensions import safe_parse_iso
 class EventRepository:
 
     def __init__(self, dynamodb, table_name):
@@ -12,8 +13,8 @@ class EventRepository:
             id=item["PK"].split("#")[1],
             title=item.get("title"),
             description=item.get("description") or "",
-            event_start_datetime=datetime.fromisoformat(item["event_start_datetime"]) if item.get("event_start_datetime") else None,
-            event_end_datetime=datetime.fromisoformat(item["event_end_datetime"]) if item.get("event_end_datetime") else None,
+            event_start_datetime=safe_parse_iso(item["event_start_datetime"]) if item.get("event_start_datetime") else None,
+            event_end_datetime=safe_parse_iso(item["event_end_datetime"]) if item.get("event_end_datetime") else None,
             organizer_id=item.get("organizer_id"),
             organizer_name=item.get("organizer_name") or "organizer",
             organizing_for=item.get("organizing_for") or "self",
@@ -28,16 +29,15 @@ class EventRepository:
             "SK": "DETAILS",
             "title": event.title,
             "description": event.description,
-            "event_start_datetime": serialize_datetime(event.event_start_datetime),
-            "event_end_datetime": serialize_datetime(event.event_end_datetime),
+            "event_start_datetime": safe_parse_iso(event.event_start_datetime),
+            "event_end_datetime": safe_parse_iso(event.event_end_datetime),
             "organizer_id": event.organizer_id,
             "slug": event.slug,
             "no_of_participants_allowed": event.no_of_participants_allowed,
             "organizer_name": event.organizer_name,
             "status": event.status,
             "room_id": event.room_id,
-            "organizing_for": event.organizing_for
-        }
+            "organizing_for": event.organizing_for        }
 
         # remove None values
         item = {k: v for k, v in item.items() if v is not None}
@@ -124,10 +124,4 @@ class EventRepository:
             Key={"PK": f"EVENT#{event_id}", "SK": "DETAILS"},
             UpdateExpression="SET room_id = :r",
             ExpressionAttributeValues={":r": room_id}
-        )
-    def update_questionnaire(self, event_id, questionnaire):
-        self.table.update_item(
-            Key={"PK": f"EVENT#{event_id}", "SK": "DETAILS"},
-            UpdateExpression="SET questionnaire = :q",
-            ExpressionAttributeValues={":q": questionnaire}
         )
