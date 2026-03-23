@@ -1,9 +1,10 @@
 # app/extensions.py
 
+from Lib import json
 from flask_sqlalchemy import SQLAlchemy
 import boto3
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from flask_socketio import SocketIO
 logger = logging.getLogger(__name__)
@@ -30,8 +31,8 @@ def generate_slug(title):
     unique_id = str(uuid.uuid4())[:8]
     return f"{slug}-{unique_id}"
 def match_start_end_datetime(start_datetime_str, end_datetime_str):
-    start_datetime = parse_date(start_datetime_str)
-    end_datetime = parse_date(end_datetime_str)
+    start_datetime = parse_event_datetime(start_datetime_str)
+    end_datetime = parse_event_datetime(end_datetime_str)
     if start_datetime > end_datetime:
         raise ValueError("Event start datetime cannot be after end datetime.")
     return start_datetime, end_datetime
@@ -49,3 +50,16 @@ def safe_parse_iso(dt_str):
         # Log invalid datetime and return None
         print(f"[WARNING] Invalid datetime string: {dt_str}")
         return None
+def parse_event_datetime(date_string: str):
+    
+
+    dt = datetime.fromisoformat(date_string)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return str(dt)
+
+def current_utc_time():
+    return str(datetime.now(timezone.utc))
+
+def convert_dict_to_json(data):
+    return json.dumps(data)

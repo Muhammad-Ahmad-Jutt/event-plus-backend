@@ -45,6 +45,8 @@ class AuthService:
         )
 
         return token
+    def get_user_by_id(self, user_id):
+        return self.user_repository.get_by_id(user_id)
     
 #  So this the stateless jwt token based authentication service.
 # logout will be handled on the client side by simply deleting the token from the front end. 

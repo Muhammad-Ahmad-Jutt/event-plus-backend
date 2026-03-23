@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import socketio
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from app.extensions import current_utc_time, parse_event_datetime
 
 event_bp = Blueprint("events", __name__)
 
@@ -61,13 +63,13 @@ def start_event(event_id):
         return jsonify({"success": False, "message": "Unauthorized"}), 403
     if event.status != 'scheduled':
         return jsonify({"success": False, "message": "Only scheduled events can be started"}), 400 
-    if event.event_start_datetime > datetime.utcnow():
+    if parse_event_datetime(event.event_start_datetime) > current_utc_time():
         return jsonify({"success": False, "message": "Event cannot be started before its start datetime"}), 400
-    if event.event_end_datetime < datetime.utcnow():
+    if parse_event_datetime(event.event_end_datetime) < current_utc_time():
         return jsonify({"success": False, "message": "Event cannot be started after its end datetime"}), 400
     if event.status == 'running':
         return jsonify({"success": False, "message": "Event is already running"}), 400
-    if event.status == 'scheduled' and event.event_start_datetime <= datetime.utcnow() and event.event_end_datetime >= datetime.utcnow():
+    if event.status == 'scheduled' and parse_event_datetime(event.event_start_datetime) <= current_utc_time() and parse_event_datetime(event.event_end_datetime) >= current_utc_time():
         room_id =current_app.event_service.create_room_for_event(event_id)
         current_app.event_service.update_event(event_id, room_id=room_id, status='running')
         socketio.emit(

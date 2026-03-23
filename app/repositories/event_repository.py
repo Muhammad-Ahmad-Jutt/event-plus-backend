@@ -1,7 +1,7 @@
 from boto3.dynamodb.conditions import Key
 from app.domain.event import Event
 from datetime import datetime
-from app.extensions import serialize_datetime
+from app.extensions import parse_event_datetime, serialize_datetime
 from app.extensions import safe_parse_iso
 class EventRepository:
 
@@ -13,8 +13,8 @@ class EventRepository:
             id=item["PK"].split("#")[1],
             title=item.get("title"),
             description=item.get("description") or "",
-            event_start_datetime=safe_parse_iso(item["event_start_datetime"]) if item.get("event_start_datetime") else None,
-            event_end_datetime=safe_parse_iso(item["event_end_datetime"]) if item.get("event_end_datetime") else None,
+            event_start_datetime=parse_event_datetime(item["event_start_datetime"]) if item.get("event_start_datetime") else None,
+            event_end_datetime=parse_event_datetime(item["event_end_datetime"]) if item.get("event_end_datetime") else None,
             organizer_id=item.get("organizer_id"),
             organizer_name=item.get("organizer_name") or "organizer",
             organizing_for=item.get("organizing_for") or "self",
@@ -29,8 +29,8 @@ class EventRepository:
             "SK": "DETAILS",
             "title": event.title,
             "description": event.description,
-            "event_start_datetime": safe_parse_iso(event.event_start_datetime),
-            "event_end_datetime": safe_parse_iso(event.event_end_datetime),
+            "event_start_datetime": parse_event_datetime(event.event_start_datetime),
+            "event_end_datetime": parse_event_datetime(event.event_end_datetime),
             "organizer_id": event.organizer_id,
             "slug": event.slug,
             "no_of_participants_allowed": event.no_of_participants_allowed,
