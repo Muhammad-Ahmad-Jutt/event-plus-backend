@@ -8,32 +8,34 @@ class QARepository:
     def __init__(self, dynamodb, table_name):
         self.table = dynamodb.Table(table_name)
 
-    def save_question(self, question: Question):
+    def save_question(self, question):
         item = {
-            "PK": f"ROOM#{question.room_id}",
-            "SK": f"QUESTION#{question.id}",
-            "organizer_id": question.organizer_id,
-            "text": question.text,
-            "type": question.type,
-            "options": question.options,
-            "correct_answer": question.correct_answer
+            "PK": f"ROOM#{question['room_id']}",
+            "SK": f"QUESTION#{question['id']}",
+            "organizer_id": question['organizer_id'],
+            "text": question['text'],
+            "type": question['type'],
+            "options": question['options'],
+            "correct_answer": question['correct_answer']
         }
         self.table.put_item(Item=item)
-        return question.id
+        return question['id']
 
     def save_answer(self, answer: Answer):
+        
         item = {
-            "PK": f"QUESTION#{answer.question_id}",
-            "SK": f"ANSWER#{answer.id}",
-            "participant_id": answer.participant_id,
-            "text": answer.answer_text,
-            "submitted_at": answer.submitted_at
+            "PK": f"QUESTION#{answer['question_id']}",
+            "SK": f"ANSWER#{answer['id']}",
+            "participant_id": answer['participant_id'],
+            "text": answer['answer_text'],
+            "submitted_at": answer['submitted_at']
         }
         self.table.put_item(Item=item)
-        return answer.id
-    def get_question_by_id(self, question_id):
+        return answer['id']
+    def get_question_by_id(self, room_id, question_id):
+
         response = self.table.query(
-            KeyConditionExpression=Key("SK").eq(f"QUESTION#{question_id}")
+            KeyConditionExpression=Key("PK").eq(f"ROOM#{room_id}") & Key("SK").eq(f"QUESTION#{question_id}")
         )
         items = response.get("Items", [])
         if not items:

@@ -2,6 +2,9 @@ import os
 from flask import Flask, current_app
 from logging.config import dictConfig
 from dotenv import load_dotenv
+
+from app.repositories.qa_repository import QARepository
+from app.services.qa_service import QAService
 from .extensions import db
 import logging
 import time
@@ -52,6 +55,10 @@ def create_app():
     event_repo = EventRepository(dynamodb, app.config['DYNAMODB_TABLE'])
     event_service = EventService(event_repo, user_repo)
     app.event_service = event_service
+
+    question_repo = QARepository(dynamodb, app.config['DYNAMODB_TABLE'])
+    qa_service = QAService(question_repo, event_repo)
+    app.qa_service = qa_service
 
     # Register middleware logging
     register_logging_middleware(app)

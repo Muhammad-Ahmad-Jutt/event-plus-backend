@@ -1,10 +1,11 @@
 from flask import request, current_app
 from flask_socketio import join_room, leave_room, emit
 from flask_jwt_extended import decode_token
-from app.extensions import socketio
+from app.extensions import socketio, convert_dict_to_json
 from app.services.event_service import EventService
 from app.services.qa_service import QAService
 from app.services.authentication_service import AuthService
+from app.domain.question import Question
 connected_users = {}
 
 @socketio.on('connect')
@@ -56,26 +57,36 @@ def handle_create_question(data):
     info = connected_users.get(request.sid)
     if not info:
         return
-    room_id = info['room_id']
+    data["room_id"] = info['room_id']
     data["organizer_id"]=info['user_id']
+
     # Process the question creation logic here
+    print(f"Received question creation request in room: {data}")
+    question_id, user_email = current_app.qa_service.save_question(question=data)
 
-    question_id, user_email = QAService.save_question(data['question'])
-    print(f"User {user_email} created a question in room {room_id}: {data['question']}")
-    emit('question_created', {'user': user_email, 'question': data['question']}, room=room_id)
-
+    # emit_question_data = {'user': user_email, 'question': data['text'],'question_id': question_id, 'room_id': info['room_id']}
+    # print(f"Emitting question creation to room {info['room_id']}: {emit_question_data}")
+    emit(
+    "receive_question",   # 👈 event name (you choose this)
+    {
+        'user': user_email,
+        'question': data['text'],
+        'question_id': question_id
+    },
+    room=info['room_id']
+)
 @socketio.on('submit_answer')
 def handle_submit_answer(data):
     info = connected_users.get(request.sid)
     if not info:
         return
-    room_id = info['room_id']
+    data["room_id"] = info['room_id']
     question_id = data['question_id']  
-    answer_id, user_email = QAService.save_answer({
-        "room_id": room_id,
+    answer_id, user_email = current_app.qa_service.save_answer({
+        "room_id": data["room_id"],
         "question_id": question_id,
-        "participant_id": info['user_id'],
-        "answer_text": data['answer']
+        "participant_id": request.sid,
+        "answer_text": data['answer_text']
     })
-    print(f"User {user_email} submitted an answer in room {room_id}: {data['answer']}")
-    emit('answer_submitted', {'user': user_email, 'answer': data['answer']}, room=room_id) 
+    print(f"User {user_email} submitted an answer in room {data['room_id']}: {data['answer_text']}")
+    emit('answer_submitted', {'user': user_email, 'answer': data['answer_text']}, room=data['room_id']) 

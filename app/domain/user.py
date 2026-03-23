@@ -1,6 +1,8 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from app.extensions import current_utc_time
+
 
 class User:
     def __init__(
@@ -31,7 +33,7 @@ class User:
         self.gender = gender
         self.dob = dob
         self.is_verified = is_verified
-        self.created_at = created_at or datetime.utcnow()
+        self.created_at = created_at or current_utc_time()
         self.last_login = last_login
 
     def set_password(self, password):
@@ -41,5 +43,5 @@ class User:
         return check_password_hash(self.password_hash, password)
 
     def update_last_login(self):
-        self.last_login = datetime.utcnow()
+        self.last_login = current_utc_time()
 
