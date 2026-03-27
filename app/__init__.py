@@ -71,10 +71,6 @@ def create_app():
     return app
 
 
-# ----------------------------
-# Logging Middleware
-# ----------------------------
-
 def register_logging_middleware(app):
     logger = logging.getLogger("request_logger")
 
