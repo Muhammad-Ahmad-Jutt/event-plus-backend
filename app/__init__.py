@@ -1,5 +1,5 @@
 import os
-from flask import Flask, current_app
+from flask import Flask, app, current_app
 from logging.config import dictConfig
 from dotenv import load_dotenv
 
@@ -17,13 +17,20 @@ from app.repositories.event_repository import EventRepository
 from app.services.event_service import EventService
 from flask_jwt_extended import JWTManager
 from app.extensions import socketio
-
+from flask_cors import CORS
 
 load_dotenv()  
 
 
 def create_app():
     app = Flask(__name__)
+    origins = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+    # CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": origins}},
+        supports_credentials=True
+    )
     jwt = JWTManager()
     # Choose environment
     env = os.getenv("APP_ENV", "development")
@@ -43,6 +50,7 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
+    
     #socket connection
     socketio.init_app(app, async_mode="gevent")   
     from app.websocket import event_handlers
