@@ -1,6 +1,6 @@
 # app/extensions.py
 
-from Lib import json
+import json
 from flask_sqlalchemy import SQLAlchemy
 import boto3
 import logging

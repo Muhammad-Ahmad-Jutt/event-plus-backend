@@ -39,12 +39,14 @@ class AuthService:
 
         user.update_last_login()
         self.user_repository.save(user)
-
+        print(f"User {user.username} logged in successfully")
         token = create_access_token(
-            identity=user.id
+            identity=user.id,
+            additional_claims={"username": user.username, "email": user.email},
+
         )
 
-        return token
+        return {"token": token, "username": user.username}
     def get_user_by_id(self, user_id):
         return self.user_repository.get_by_id(user_id)
     
