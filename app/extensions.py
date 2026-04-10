@@ -63,3 +63,24 @@ def current_utc_time():
 
 def convert_dict_to_json(data):
     return json.dumps(data)
+def to_dict(self):
+    return {
+        "id": self.id,
+        "title": self.title,
+        "description": self.description,
+
+        "event_start_datetime": (
+            self.event_start_datetime.isoformat()
+            if hasattr(self.event_start_datetime, "isoformat")
+            else self.event_start_datetime
+        ),
+
+        "event_end_datetime": (
+            self.event_end_datetime.isoformat()
+            if hasattr(self.event_end_datetime, "isoformat")
+            else self.event_end_datetime
+        ),
+
+        "organizer_id": self.organizer_id,
+        "status": self.status
+    }
