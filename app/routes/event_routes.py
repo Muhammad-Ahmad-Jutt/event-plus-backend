@@ -3,7 +3,7 @@ from app import socketio
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app.extensions import current_utc_time, parse_event_datetime
+from app.extensions import current_utc_time, parse_event_datetime, to_dict
 
 event_bp = Blueprint("events", __name__)
 
@@ -35,10 +35,32 @@ def create_event():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
+@event_bp.route("/<string:event_id>", methods=["GET"])
+@jwt_required()
+def get_event(event_id):
+    try:
+        current_user = get_jwt_identity()
+
+        event = current_app.event_service.by_id(event_id)
+        if not event:
+            return jsonify({"success": False, "message": "Event not found"}), 404
+
+        if str(event.organizer_id) != str(current_user):
+            return jsonify({"success": False, "message": "Unauthorized"}), 403
+
+        return jsonify({
+            "success": True,
+            "message": "Event retrieved successfully",
+            "event": to_dict(event)
+        }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 @event_bp.route("/events_by_organizer", methods=["GET"])
 @jwt_required()
 def get_events_by_organizer():
     try:
+        
         current_user = get_jwt_identity()
         events = current_app.event_service.get_events_by_organizer_id(current_user)
         events_data = [
@@ -49,7 +71,8 @@ def get_events_by_organizer():
                 "event_start_datetime": event.event_start_datetime,
                 "event_end_datetime": event.event_end_datetime,
                 "organizer_id": event.organizer_id,
-                "status": event.status
+                "status": event.status,
+                "no_of_participants_allowed": event.no_of_participants_allowed,
             }
             for event in events
         ]
