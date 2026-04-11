@@ -71,7 +71,8 @@ def get_events_by_organizer():
                 "event_start_datetime": event.event_start_datetime,
                 "event_end_datetime": event.event_end_datetime,
                 "organizer_id": event.organizer_id,
-                "status": event.status
+                "status": event.status,
+                "no_of_participants_allowed": event.no_of_participants_allowed,
             }
             for event in events
         ]

@@ -68,7 +68,6 @@ def to_dict(self):
         "id": self.id,
         "title": self.title,
         "description": self.description,
-
         "event_start_datetime": (
             self.event_start_datetime.isoformat()
             if hasattr(self.event_start_datetime, "isoformat")
@@ -82,5 +81,6 @@ def to_dict(self):
         ),
 
         "organizer_id": self.organizer_id,
-        "status": self.status
+        "status": self.status,
+        "no_of_participants_allowed": self.no_of_participants_allowed
     }
