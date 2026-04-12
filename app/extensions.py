@@ -84,3 +84,4 @@ def to_dict(self):
         "status": self.status,
         "no_of_participants_allowed": self.no_of_participants_allowed
     }
+    
