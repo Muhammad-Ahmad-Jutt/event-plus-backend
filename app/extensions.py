@@ -82,6 +82,6 @@ def to_dict(self):
 
         "organizer_id": self.organizer_id,
         "status": self.status,
-        "no_of_participants_allowed": self.no_of_participants_allowed
+        "no_of_participants_allowed": self.no_of_participants_allowed,
+        "room_id": self.room_id
     }
-    

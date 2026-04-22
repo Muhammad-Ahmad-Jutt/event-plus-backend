@@ -36,7 +36,6 @@ def login():
             password=data["password"],
         )
         
-        print('Token generated successfully---------------------------------------------------------------------------------------------', result, result['token'])
         return jsonify({"success": True, "message": "Login successful", "user": result['username'], "access_token": result['token']})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 401
