@@ -6,6 +6,8 @@ import boto3
 import logging
 from datetime import datetime, timezone
 import uuid
+from flask import current_app
+
 from flask_socketio import SocketIO
 logger = logging.getLogger(__name__)
 db = SQLAlchemy()
@@ -85,3 +87,7 @@ def to_dict(self):
         "no_of_participants_allowed": self.no_of_participants_allowed,
         "room_id": self.room_id
     }
+
+def get_current_user_name(user_id):
+    user = current_app.auth_service.get_user_by_id(user_id)
+    return user.username if user else "Unknown User"
