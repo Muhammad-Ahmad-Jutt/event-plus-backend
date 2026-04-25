@@ -124,7 +124,20 @@ def end_event(event_id):
             return jsonify({"success": False, "message": "Unauthorized"}), 403
         if event.status != 'running':
             return jsonify({"success": False, "message": "Only running events can be ended"}), 400 
+        
+        room_id = event.room_id
+        
         current_app.event_service.update_event(event_id, status='ended', room_id=None)
+
+        if room_id:
+            socketio.emit(
+                "event_ended",
+                {
+                    "event_id": event_id,
+                    "message": "Event has ended"
+                },
+                room=room_id
+            )
         
         return jsonify({"success": True, "message": "Event ended successfully"}), 200
     except Exception as e:
