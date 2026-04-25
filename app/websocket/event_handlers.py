@@ -1,7 +1,7 @@
 from flask import request, current_app
 from flask_socketio import join_room, leave_room, emit
 from flask_jwt_extended import decode_token
-from app.extensions import socketio, convert_dict_to_json
+from app.extensions import socketio, convert_dict_to_json,get_current_user_name
 from app.services.event_service import EventService
 from app.services.qa_service import QAService
 from app.services.authentication_service import AuthService
@@ -32,16 +32,15 @@ def handle_connect():
         'user_id': user_identity,
         'room_id': room_id
     }
-
-    emit('status', {'message': f'User {user_identity} connected to room {room_id}'}, room=room_id)
-    print(f"{user_identity} connected to {room_id}")
+    user_name = get_current_user_name(user_identity)
+    emit('status', {'message': f'User {user_name} connected to room {room_id}'}, room=room_id)
 
 @socketio.on('disconnect')
 def handle_disconnect():
     info = connected_users.pop(request.sid, None)
+    user_name = get_current_user_name(info['user_id']) if info else "Unknown User"
     if info:
         leave_room(info['room_id'])
-        print(f"User {info['user_id']} disconnected from room {info['room_id']}")
 
 @socketio.on('message')
 def handle_message(data):
@@ -49,8 +48,8 @@ def handle_message(data):
     if not info:
         return
     room_id = info['room_id']
-    print(f"Emitting message to room {room_id}: {data['message']}")
-    emit('message', {'user': info['user_id'], 'message': data['message']}, room=room_id)
+    user_name = get_current_user_name(info['user_id'])
+    emit('message', {'user': user_name, 'message': data['message']}, room=room_id)
 
 @socketio.on('create_question')
 def handle_create_question(data):
@@ -88,5 +87,5 @@ def handle_submit_answer(data):
         "participant_id": request.sid,
         "answer_text": data['answer_text']
     })
-    print(f"User {user_email} submitted an answer in room {data['room_id']}: {data['answer_text']}")
-    emit('answer_submitted', {'user': user_email, 'answer': data['answer_text']}, room=data['room_id']) 
+    user_name = get_current_user_name(info['user_id'])
+    emit('answer_submitted', {'user': user_name, 'answer': data['answer_text']}, room=data['room_id']) 
